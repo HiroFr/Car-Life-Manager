@@ -1,45 +1,42 @@
 import { useState } from "react";
 import useStore from "../../store/store";
-import MsgError from "../MsgError";
 
-interface FormAddVehiculeProps {
+interface CarProps {
+  id: string;
+  brand: string;
+  name: string;
+  year: number;
+  mileage: number;
+  nextService: string;
+  tires: string;
+  createdAt: Date;
+}
+
+interface FormEditVehiculeProps {
+  car: CarProps;
   onClose?: () => void;
 }
 
-export default function FormAddVehicule({ onClose }: FormAddVehiculeProps) {
-  const [brand, setBrand] = useState("");
-  const [name, setName] = useState("");
-  const [year, setYear] = useState(Number);
-  const [mileage, setMileage] = useState(Number);
-  const [nextService, setNextService] = useState("");
-  const [tires, setTires] = useState("");
-  const [error, setError] = useState("");
-  const addCar = useStore((state) => state.addCar);
+export default function FormEditVehicule({ car, onClose }: FormEditVehiculeProps) {
+  const [brand, setBrand] = useState(car.brand);
+  const [name, setName] = useState(car.name);
+  const [year, setYear] = useState(car.year);
+  const [mileage, setMileage] = useState(car.mileage);
+  const [nextService, setNextService] = useState(car.nextService);
+  const [tires, setTires] = useState(car.tires);
+  const editCar = useStore((state) => state.updateCar);
 
   const handleSubmit = (e: { preventDefault: () => void }) => {
     e.preventDefault();
 
-    if (!brand || !name || !year || !nextService || !tires) {
-      setError("Veuillez remplir tous les champs.");
-      return;
-    }
-
-    if (year < 1950 ||year > new Date().getFullYear()) {
-      setError("Veuillez entrer une année valide (1950 - année actuelle).");
-      return;
-    }
-    if (mileage < 0) {
-      setError("Le kilométrage ne peut pas être négatif.");
-      return;
-    }
-
-    addCar({
+    editCar(car.id, {
       brand,
       name,
       year,
       mileage,
       nextService,
       tires,
+      createdAt: car.createdAt,
     });
 
     // reset form fields
@@ -53,7 +50,7 @@ export default function FormAddVehicule({ onClose }: FormAddVehiculeProps) {
   };
   return (
     <div className="flex flex-col items-center mx-auto my-4 w-fit p-4 rounded-lg">
-      <h1 className="text-xl font-semibold">Ajouter un véhicule</h1>
+      <h1 className="text-xl font-semibold">Modifier un véhicule</h1>
       <div className="flex flex-col space-y-4 mt-4">
         <div>
           <label htmlFor="brand">Marque</label>
@@ -120,7 +117,7 @@ export default function FormAddVehicule({ onClose }: FormAddVehiculeProps) {
               <option value="">Sélectionner le type de pneus</option>
               <option value="été">Été</option>
               <option value="hiver">Hiver</option>
-              <option value="toutes_saisons">Toutes saisons</option>
+              <option value="toutes saisons">Toutes saisons</option>
             </select>
           </label>
       </div>
@@ -130,7 +127,6 @@ export default function FormAddVehicule({ onClose }: FormAddVehiculeProps) {
       >
         Enregistrer
       </button>
-      {error && <MsgError message={error} />}
     </div>
   );
 }
